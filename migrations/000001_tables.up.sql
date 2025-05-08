@@ -21,16 +21,23 @@ CREATE TABLE tasks (
     payload JSONB,
     retries INTEGER NOT NULL DEFAULT 0,
     max_retries INTEGER NOT NULL DEFAULT 3,
-    scheduled_at TIMESTAMP WITH TIME ZONE,
+    scheduled_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 
+-- Task natijalari jadvali
 CREATE TABLE task_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    task_id UUID REFERENCES tasks(id),
-    file_url VARCHAR(50) NOT NULL, 
-    git_url VARCHAR(70) NOT NULL, 
+    task_id UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    file_url TEXT,
+    git_url TEXT,
     completed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Indexlar
+CREATE INDEX idx_tasks_creator_id ON tasks(creator_id);
+CREATE INDEX idx_tasks_user_id ON tasks(user_id);
+CREATE INDEX idx_tasks_status ON tasks(status);
+CREATE INDEX idx_task_results_task_id ON task_results(task_id);
