@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"asynchronous/config"
+	"asynchronous/storage"
 	"database/sql"
 	"fmt"
 
@@ -10,6 +11,12 @@ import (
 
 type postgresStorage struct {
 	db *sql.DB
+}
+
+func NewPostgresStorage(db *sql.DB) storage.IStorage {
+	return &postgresStorage{
+		db: db,
+	}
 }
 
 func ConnectionDb() (*sql.DB, error) {
@@ -30,4 +37,16 @@ func ConnectionDb() (*sql.DB, error) {
 
 func (p *postgresStorage) Close() {
 	p.db.Close()
+}
+
+func (p *postgresStorage) Task() storage.ITaskStorage {
+	return NewTaskRepository(p.db)
+}
+
+func (p *postgresStorage) User() storage.IUserStorage {
+	return NewUserRepository(p.db)
+}
+
+func (p *postgresStorage) TaskResult() storage.ITaskResultStorage {
+	return NewTaskResultRepository(p.db)
 }
