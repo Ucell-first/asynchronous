@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepository struct {
@@ -23,14 +24,19 @@ func NewUserRepository(db *sql.DB) storage.IUserStorage {
 
 func (r *UserRepository) CreateUser(ctx context.Context, user models.User) (string, error) {
 	user.ID = uuid.New().String()
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash password: %w", err)
+	}
+
 	query := `
         INSERT INTO users (id, email, password_hash, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5)`
 
-	_, err := r.db.ExecContext(ctx, query,
+	_, err = r.db.ExecContext(ctx, query,
 		user.ID,
 		user.Email,
-		user.PasswordHash,
+		string(hashedPassword),
 		time.Now(),
 		time.Now(),
 	)

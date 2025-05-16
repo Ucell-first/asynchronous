@@ -10,6 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.8.0
 	github.com/spf13/cast v1.8.0
+	golang.org/x/crypto v0.36.0
 )
 
 require (
@@ -25,7 +26,6 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
