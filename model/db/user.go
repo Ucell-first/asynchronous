@@ -7,20 +7,20 @@ import (
 )
 
 type Task struct {
-	ID                  string         `json:"id"`
-	CreatorID           string         `json:"creator_id"`
-	UserID              string         `json:"user_id"`
-	Title               string         `json:"title"`
-	Priority            int            `json:"priority"`
-	Status              string         `json:"status"`
-	CanUserChangeStatus bool           `json:"can_user_change_status"`
-	Payload             map[string]any `json:"payload"`
-	Retries             int            `json:"retries"`
-	MaxRetries          int            `json:"max_retries"`
-	ScheduledAt         sql.NullTime   `json:"scheduled_at"`
-	CreatedAt           time.Time      `json:"created_at"`
-	UpdatedAt           time.Time      `json:"updated_at"`
-	DeletedAt           sql.NullTime   `json:"deleted_at"`
+	ID                  string       `json:"id"`
+	CreatorID           string       `json:"creator_id"`
+	UserID              string       `json:"user_id"`
+	Title               string       `json:"title"`
+	Priority            int          `json:"priority"`
+	Status              string       `json:"status"`
+	CanUserChangeStatus bool         `json:"can_user_change_status"`
+	Payload             []byte       `json:"payload"` // Endi []byte
+	Retries             int          `json:"retries"`
+	MaxRetries          int          `json:"max_retries"`
+	ScheduledAt         sql.NullTime `json:"scheduled_at"`
+	CreatedAt           time.Time    `json:"created_at"`
+	UpdatedAt           time.Time    `json:"updated_at"`
+	DeletedAt           sql.NullTime `json:"deleted_at"`
 }
 
 type TaskResult struct {

@@ -25,14 +25,10 @@ func NewTaskRepository(db *sql.DB) storage.ITaskStorage {
 
 func (r *TaskRepository) CreateTask(ctx context.Context, task models.Task) (string, error) {
 	task.ID = uuid.New().String()
-	payload, _ := json.Marshal(task.Payload)
 
 	query := `
-		INSERT INTO tasks (
-			id, creator_id, user_id, title, priority, status, 
-			can_user_change_status, payload, retries, max_retries,
-			scheduled_at, created_at, updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+        INSERT INTO tasks (...) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
 
 	_, err := r.db.ExecContext(ctx, query,
 		task.ID,
@@ -42,12 +38,12 @@ func (r *TaskRepository) CreateTask(ctx context.Context, task models.Task) (stri
 		task.Priority,
 		task.Status,
 		task.CanUserChangeStatus,
-		payload,
+		task.Payload, // To'g'ridan-to'g'ri []byte
 		task.Retries,
 		task.MaxRetries,
 		task.ScheduledAt,
-		time.Now(),
-		time.Now(),
+		task.CreatedAt,
+		task.UpdatedAt,
 	)
 
 	return task.ID, err
@@ -203,4 +199,19 @@ func (r *TaskRepository) ListTasks(ctx context.Context, filters map[string]inter
 	}
 
 	return tasks, nil
+}
+
+func (r *TaskRepository) UpdateTaskStatus(ctx context.Context, taskID string, status string) error {
+	query := `
+        UPDATE tasks 
+        SET status = $1, updated_at = $2 
+        WHERE id = $3 AND deleted_at IS NULL`
+
+	_, err := r.db.ExecContext(ctx, query,
+		status,
+		time.Now(),
+		taskID,
+	)
+
+	return err
 }

@@ -19,6 +19,7 @@ type ITaskStorage interface {
 	UpdateTask(ctx context.Context, task models.Task) error
 	DeleteTask(ctx context.Context, id string) error
 	ListTasks(ctx context.Context, filters map[string]interface{}, limit, offset int) ([]models.Task, error)
+	UpdateTaskStatus(ctx context.Context, taskID string, status string) error
 }
 
 type ITaskResultStorage interface {
