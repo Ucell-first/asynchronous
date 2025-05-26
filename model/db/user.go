@@ -19,6 +19,7 @@ type Task struct {
 	Retries             int             `json:"retries"`
 	MaxRetries          int             `json:"max_retries"`
 	ScheduledAt         sql.NullTime    `json:"scheduled_at"`
+	NextRetryAt         *time.Time      `json:"next_retry_at"` // Yangi qo'shilgan maydon
 	CreatedAt           time.Time       `json:"created_at"`
 	UpdatedAt           time.Time       `json:"updated_at"`
 	DeletedAt           sql.NullTime    `json:"deleted_at"`
