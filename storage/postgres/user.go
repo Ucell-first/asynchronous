@@ -90,6 +90,19 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (mode
 }
 
 func (r *UserRepository) UpdateUser(ctx context.Context, user models.User) error {
+	eskiUser, err := r.GetUserByID(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+
+	if user.PasswordHash != "" && user.PasswordHash != eskiUser.PasswordHash {
+		yangiParol, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		user.PasswordHash = string(yangiParol)
+	}
+
 	query := `
         UPDATE users SET
             email = $2,
@@ -99,7 +112,7 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user models.User) error
             updated_at = $6
         WHERE id = $1 AND deleted_at IS NULL`
 
-	_, err := r.db.ExecContext(ctx, query,
+	_, err = r.db.ExecContext(ctx, query,
 		user.ID,
 		user.Email,
 		user.Name,

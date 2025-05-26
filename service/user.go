@@ -24,25 +24,19 @@ func NewUserService(db storage.IStorage, logger *slog.Logger) *UserService {
 	}
 }
 
+func isValidName(name string) bool {
+	return len(name) >= 2 && len(name) <= 100
+}
+
 // Register - Foydalanuvchini ro'yxatdan o'tkazish
 func (s *UserService) Register(ctx context.Context, req db.User) (string, error) {
 	s.logger.Info("Register metodi ishga tushdi", "email", req.Email)
-
-	// Parolni hash qilish
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.PasswordHash), bcrypt.DefaultCost)
-	if err != nil {
-		s.logger.Error("Parolni hash qilishda xato", "error", err)
-		return "", fmt.Errorf("parolni hash qilishda xato: %w", err)
-	}
-	req.PasswordHash = string(hashedPassword)
-
 	// Email unikal ekanligini tekshirish
 	existingUser, err := s.storage.User().GetUserByEmail(ctx, req.Email)
 	if err == nil && existingUser.ID != "" {
 		s.logger.Warn("Bu email allaqachon ro'yxatdan o'tgan", "email", req.Email)
 		return "", errors.New("email allaqachon mavjud")
 	}
-
 	// Bazaga yozish
 	userID, err := s.storage.User().CreateUser(ctx, req)
 	if err != nil {
@@ -99,12 +93,22 @@ func (s *UserService) UpdateUser(ctx context.Context, userID string, updates map
 		return fmt.Errorf("foydalanuvchi topilmadi: %w", err)
 	}
 
+	if name, ok := updates["name"].(string); ok {
+		if !isValidName(name) {
+			return errors.New("ism noto'g'ri formatda")
+		}
+		existingUser.Name = name
+	}
+
 	// Yangilanishlarni qo'llash
 	if email, ok := updates["email"].(string); ok {
 		existingUser.Email = email
 	}
 	if name, ok := updates["name"].(string); ok {
 		existingUser.Name = name
+	}
+	if surname, ok := updates["surname"].(string); ok { // surname qo'shildi
+		existingUser.Surname = surname
 	}
 
 	if err := s.storage.User().UpdateUser(ctx, existingUser); err != nil {

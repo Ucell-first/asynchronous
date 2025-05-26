@@ -27,8 +27,11 @@ func (r *TaskRepository) CreateTask(ctx context.Context, task models.Task) (stri
 	task.ID = uuid.New().String()
 
 	query := `
-        INSERT INTO tasks (...) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+    INSERT INTO tasks (
+        id, creator_id, user_id, title, priority, status, 
+        can_user_change_status, payload, retries, max_retries, 
+        scheduled_at, created_at, updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
 
 	_, err := r.db.ExecContext(ctx, query,
 		task.ID,
