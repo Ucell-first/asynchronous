@@ -1,5 +1,5 @@
 // models/task.go
-package models
+package db
 
 import (
 	"database/sql"
@@ -14,7 +14,7 @@ type Task struct {
 	Priority            int          `json:"priority"`
 	Status              string       `json:"status"`
 	CanUserChangeStatus bool         `json:"can_user_change_status"`
-	Payload             []byte       `json:"payload"` // Endi []byte
+	Payload             []byte       `json:"payload"`
 	Retries             int          `json:"retries"`
 	MaxRetries          int          `json:"max_retries"`
 	ScheduledAt         sql.NullTime `json:"scheduled_at"`
@@ -32,8 +32,10 @@ type TaskResult struct {
 }
 
 type User struct {
-	ID           string       `json:"id"`
-	Email        string       `json:"email"`
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	Name         string
+	Surname      string
 	PasswordHash string       `json:"-"`
 	CreatedAt    time.Time    `json:"created_at"`
 	UpdatedAt    time.Time    `json:"updated_at"`

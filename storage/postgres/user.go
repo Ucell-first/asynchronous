@@ -1,4 +1,3 @@
-// storage/postgres/user_repository.go
 package postgres
 
 import (
@@ -30,12 +29,14 @@ func (r *UserRepository) CreateUser(ctx context.Context, user models.User) (stri
 	}
 
 	query := `
-        INSERT INTO users (id, email, password_hash, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5)`
+        INSERT INTO users (id, email, name, surname, password_hash, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	_, err = r.db.ExecContext(ctx, query,
 		user.ID,
 		user.Email,
+		user.Name,
+		user.Surname,
 		string(hashedPassword),
 		time.Now(),
 		time.Now(),
@@ -46,12 +47,14 @@ func (r *UserRepository) CreateUser(ctx context.Context, user models.User) (stri
 
 func (r *UserRepository) GetUserByID(ctx context.Context, id string) (models.User, error) {
 	var user models.User
-	query := `SELECT id, email, password_hash, created_at, updated_at, deleted_at 
+	query := `SELECT id, email, name, surname, password_hash, created_at, updated_at, deleted_at 
               FROM users WHERE id = $1 AND deleted_at IS NULL`
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&user.ID,
 		&user.Email,
+		&user.Name,
+		&user.Surname,
 		&user.PasswordHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -66,12 +69,14 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id string) (models.Use
 
 func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 	var user models.User
-	query := `SELECT id, email, password_hash, created_at, updated_at, deleted_at 
+	query := `SELECT id, email, name, surname, password_hash, created_at, updated_at, deleted_at 
               FROM users WHERE email = $1 AND deleted_at IS NULL`
 
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
 		&user.ID,
 		&user.Email,
+		&user.Name,
+		&user.Surname,
 		&user.PasswordHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -88,13 +93,17 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user models.User) error
 	query := `
         UPDATE users SET
             email = $2,
-            password_hash = $3,
-            updated_at = $4
+            name = $3,
+            surname = $4,
+            password_hash = $5,
+            updated_at = $6
         WHERE id = $1 AND deleted_at IS NULL`
 
 	_, err := r.db.ExecContext(ctx, query,
 		user.ID,
 		user.Email,
+		user.Name,
+		user.Surname,
 		user.PasswordHash,
 		time.Now(),
 	)
@@ -109,7 +118,7 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id string) error {
 
 func (r *UserRepository) ListUsers(ctx context.Context, limit, offset int) ([]models.User, error) {
 	query := `
-        SELECT id, email, created_at, updated_at 
+        SELECT id, email, name, surname, created_at, updated_at 
         FROM users 
         WHERE deleted_at IS NULL
         LIMIT $1 OFFSET $2`
@@ -126,6 +135,8 @@ func (r *UserRepository) ListUsers(ctx context.Context, limit, offset int) ([]mo
 		if err := rows.Scan(
 			&user.ID,
 			&user.Email,
+			&user.Name,
+			&user.Surname,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		); err != nil {
