@@ -9,12 +9,17 @@ import (
 )
 
 type Config struct {
+	Worker   WorkerConfig
 	Postgres PostgresConfig
 	Server   ServerConfig
 	Token    TokensConfig
 	Redis    RedisConfig
 	Minio    MinioConfig
 	Email    EmailConfig
+}
+
+type WorkerConfig struct {
+	WorkerCount int
 }
 
 type PostgresConfig struct {
@@ -84,6 +89,9 @@ func Load() *Config {
 		Email: EmailConfig{
 			SENDER_EMAIL: cast.ToString(coalesce("SENDER_EMAIL", "your_email@example.com")),
 			APP_PASSWORD: cast.ToString(coalesce("APP_PASSWORD", "your_password")),
+		},
+		Worker: WorkerConfig{
+			WorkerCount: cast.ToInt(coalesce("WORKER_COUNT", 10)),
 		},
 	}
 }
