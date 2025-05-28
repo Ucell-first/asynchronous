@@ -70,7 +70,7 @@ func Load() *Config {
 			PDB_PASSWORD: cast.ToString(coalesce("PDB_PASSWORD", "3333")),
 		},
 		Server: ServerConfig{
-			ROUTER: cast.ToString(coalesce("USER_ROUTER", ":1234")),
+			ROUTER: cast.ToString(coalesce("ROUTER", ":1234")),
 		},
 		Token: TokensConfig{
 			TOKEN_KEY: cast.ToString(coalesce("TOKEN_KEY", "your_secret_key")),

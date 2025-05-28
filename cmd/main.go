@@ -3,10 +3,12 @@ package main
 import (
 	"asynchronous/api"
 	"asynchronous/api/handler"
+	"asynchronous/casbin"
 	"asynchronous/config"
 	"asynchronous/logs"
 	"asynchronous/service"
 	"asynchronous/storage/postgres"
+	pc "github.com/casbin/casbin/v2"
 	"log"
 	"log/slog"
 )
@@ -21,11 +23,10 @@ func main() {
 		log.Fatal("Databasega ulanishda xato: ", err)
 	}
 
-	defer func() {
-		if err := db.Close(); err != nil {
-			logger.Error("Database ulanishni yopishda xato", "error", err)
-		}
-	}()
+	casbin, err := casbin.CasbinEnforcer(logger)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	strg := postgres.NewPostgresStorage(db)
 
@@ -35,7 +36,7 @@ func main() {
 	taskService := service.NewTaskService(strg, logger, cfg.Worker.WorkerCount)
 	resultService := service.NewResultService(db, logger)
 
-	hand := NewHandler(userService, taskService, resultService, logger)
+	hand := NewHandler(userService, taskService, resultService, logger, casbin)
 	router := api.Router(hand)
 	err = router.Run(cfg.Server.ROUTER)
 	if err != nil {
@@ -48,11 +49,13 @@ func NewHandler(
 	taskService *service.TaskService,
 	resultService *service.ResultService,
 	logger *slog.Logger,
+	casbin *pc.Enforcer,
 ) *handler.Handler {
 	return &handler.Handler{
 		User:   userService,
 		Task:   taskService,
 		Result: resultService,
 		Log:    logger,
+		Casbin: casbin,
 	}
 }

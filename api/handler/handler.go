@@ -3,6 +3,8 @@ package handler
 import (
 	"asynchronous/service"
 	"log/slog"
+
+	"github.com/casbin/casbin/v2"
 )
 
 type Handler struct {
@@ -10,4 +12,5 @@ type Handler struct {
 	Task   *service.TaskService
 	Result *service.ResultService
 	Log    *slog.Logger
+	Casbin *casbin.Enforcer
 }
