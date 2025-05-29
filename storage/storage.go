@@ -37,4 +37,5 @@ type IUserStorage interface {
 	UpdateUser(ctx context.Context, user models.User) error
 	DeleteUser(ctx context.Context, id string) error
 	ListUsers(ctx context.Context, limit, offset int) ([]models.User, error)
+	ListUsersByRole(ctx context.Context, role models.Role, limit, offset int) ([]models.User, error)
 }

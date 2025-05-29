@@ -33,11 +33,19 @@ type TaskResult struct {
 	CompletedAt time.Time `json:"completed_at"`
 }
 
+type Role string
+
+const (
+	RoleAdmin  Role = "admin"
+	RoleWorker Role = "worker"
+)
+
 type User struct {
 	ID           string `json:"id"`
 	Email        string `json:"email"`
 	Name         string
 	Surname      string
+	Role         Role         `json:"role"`
 	PasswordHash string       `json:"-"`
 	CreatedAt    time.Time    `json:"created_at"`
 	UpdatedAt    time.Time    `json:"updated_at"`
