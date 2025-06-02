@@ -14,3 +14,11 @@ type Handler struct {
 	Log    *slog.Logger
 	Casbin *casbin.Enforcer
 }
+
+type ErrorResp struct {
+	Error string `json:"error"`
+}
+
+type SuccessResp struct {
+	Message string `json:"message"`
+}

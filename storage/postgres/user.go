@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepository struct {
@@ -24,22 +23,17 @@ func NewUserRepository(db *sql.DB) storage.IUserStorage {
 
 func (r *UserRepository) CreateUser(ctx context.Context, user models.User) (string, error) {
 	user.ID = uuid.New().String()
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
-	if err != nil {
-		return "", fmt.Errorf("failed to hash password: %w", err)
-	}
-
 	query := `
         INSERT INTO users (id, email, name, surname, role, password_hash, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 
-	_, err = r.db.ExecContext(ctx, query,
+	_, err := r.db.ExecContext(ctx, query,
 		user.ID,
 		user.Email,
 		user.Name,
 		user.Surname,
 		user.Role,
-		string(hashedPassword),
+		user.PasswordHash,
 		time.Now(),
 		time.Now(),
 	)
@@ -100,15 +94,6 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (mode
 }
 
 func (r *UserRepository) UpdateUser(ctx context.Context, user models.User) error {
-	// Parolni faqat o'zgartirilgan bo'lsa yangilaymiz
-	if user.PasswordHash != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
-		if err != nil {
-			return fmt.Errorf("failed to hash password: %w", err)
-		}
-		user.PasswordHash = string(hashedPassword)
-	}
-
 	query := `
         UPDATE users SET
             email = $2,
